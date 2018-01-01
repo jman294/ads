@@ -1,9 +1,5 @@
 name: ads
 description: Ads
 dependencies:
-  http_server: "^0.9.6"
-  rpc: "^0.5.8"
-  logging: "^0.11.3+1"
-  http: '>=0.11.1 <0.12.0'
-  _discoveryapis_commons: '>=0.1.0 <0.2.0'
-  browser: "^0.10.0+2"
+  uri:
+    git: git://github.com/google/uri.dart.git
