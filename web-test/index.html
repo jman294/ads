@@ -2,8 +2,18 @@
   <head>
   </head>
   <body>
-    <a href="http://jack.com/click/1">
-    <img style="cursor: pointer;" src="http://localhost/image/1" height="64px" width="64px"/>
+    <a href="http://dup.ly/click/1">
+    <img style="cursor: pointer;" src="http://dup.ly/image/1" height="64px" width="64px"/>
+    <p id="tagline"></p>
     </a>
+    <script>
+      var p=document.getElementById('tagline');
+      var req=new XMLHttpRequest();
+      req.open('GET', 'http://dup.ly/text/1');
+      req.onload = function() {
+        p.innerHTML = req.response;
+      };
+      req.send();
+    </script>
   </body>
 </html>

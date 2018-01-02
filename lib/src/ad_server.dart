@@ -22,6 +22,11 @@ class AdServer {
   ConnectionPool get getDb => db;
 
   Future handle(HttpRequest req) async {
+    req.response.headers.add('Access-Control-Allow-Origin', '*');
+    req.response.headers.add('Access-Control-Allow-Methods', 'GET');
+    req.response.headers.add('Access-Control-Allow-Headers',
+        'Origin, X-Requested-With, Content-Type, Accept');
+
     List<String> uriParts = req.uri.pathSegments;
 
     if (uriParts.length < 2) {
