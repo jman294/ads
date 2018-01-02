@@ -1,5 +1,9 @@
 library ads.id_list;
 
+import 'dart:io';
+import 'dart:convert';
+import 'dart:async';
+
 import 'package:ads/src/id.dart';
 
 class IdList {
@@ -8,10 +12,18 @@ class IdList {
 
   IdList (fileName) {
     this.file = new File(fileName);
-    await populate();
   }
 
   Future populate () async {
-    print('Making a list');
+    Stream<List<int>> inputStream = file.openRead();
+
+    inputStream
+      .transform(UTF8.decoder)       // Decode bytes to UTF8.
+      .transform(new LineSplitter()) // Convert stream to individual lines.
+      .listen((String line) {        // Process results.
+        ids.add(new Id.string(line));
+      },
+      onDone: () { },
+      onError: (e) { print(e.toString()); });
   }
 }

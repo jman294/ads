@@ -3,3 +3,5 @@ description: Ads
 dependencies:
   uri:
     git: git://github.com/google/uri.dart.git
+  sqljocky: "^0.14.1"
+  convert: "^2.0.0"
