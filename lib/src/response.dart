@@ -3,6 +3,8 @@ library ads.response;
 import 'dart:io';
 import 'dart:convert';
 
+import 'package:ads/src/ad_error.dart';
+
 class Response {
   int _statusCode = HttpStatus.OK;
   Map<String, String> _headers = {};
@@ -14,7 +16,7 @@ class Response {
 
   Map<String, String> get headers => _headers;
   int get statusCode => _statusCode;
-  int get data => _data;
+  List<int> get data => _data;
   String get reasonPhrase => _reasonPhrase;
   AdException get e => _e;
 
