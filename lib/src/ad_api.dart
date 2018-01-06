@@ -1,40 +1,65 @@
 library ads.api;
 
 import 'dart:io';
+import 'dart:async';
 
 import 'package:ads/src/id.dart';
 import 'package:ads/src/ad_server.dart';
+import 'package:ads/src/ad_error.dart';
+import 'package:ads/src/ad_errors.dart';
+import 'package:ads/src/response.dart';
 
 class AdApi {
-  Future image(AdServer ser, HttpRequest req, Id id) async {
-    try {
-      List<int> imageData = await new File('ad-images/$id.png').readAsBytes();
-      var db = ser.getDb;
-      var results = await db.query('SELECT imgurl FROM adinfo WHERE ad_id=$id');
-      req.response.headers.add(HttpHeaders.CONTENT_TYPE, 'image/png');
-      req.response.add(imageData);
-    } catch (FileSystemException) {
-      req.response.statusCode = HttpStatus.NOT_FOUND;
-      return;
+  Future<Response> image(AdServer ser, Id id) async {
+    var db = ser.db;
+    var results = await db.query('SELECT imgurl FROM adinfo WHERE ad_id=$id');
+    List<int> imageData;
+    if (await results.isEmpty) {
+      return new Response.error(HttpStatus.NOT_FOUND, new AdException(AdErrors.adNotFound));
+    } else {
+      try {
+        imageData = await new File('ad-images/$id.png').readAsBytes();
+      } catch (FileSystemException) {
+        return new Response.error(HttpStatus.INTERNAL_SERVER_ERROR, new AdException(adErrors.imageNotRead));
+        // FIXME Error here? Will probably change in the future
+      }
+
+      Response res = new Response(); 
+      res.headers[HttpHeaders.CONTENT_TYPE] = 'image/png';
+      res.add(imageData);
+      return res;
     }
   }
 
-  Future text(AdServer ser, HttpRequest req, Id id) async {
-    var db = ser.getDb;
-    var tag = await db.query('SELECT tag FROM adinfo WHERE ad_id=$id');
-    await tag.forEach((row) {
-      req.response.write(row.tag);
-    });
-
+  Future<Response> text(AdServer ser, Id id) async {
+    var db = ser.db;
+    var results = await db.query('SELECT tag FROM adinfo WHERE ad_id=$id');
+    var rows = await results.toList();
+    if (rows.isEmpty) {
+      return new Response.error(HttpStatus.BAD_REQUEST, new AdException(AdErrors.adNotFound));
+    } else {
+      Response res = new Response();
+      res.write(rows[0].tag);
+      return res;
+    }
   }
 
-  Future click(AdServer ser, HttpRequest req, Id id) async {
-    var db = ser.getDb;
+  Future<Response> click(AdServer ser, Id id) async {
+    var db = ser.db;
     var updateClick = await db.query(
         'UPDATE adclicks SET totalclicks=IFNULL(totalclicks, 0) + 1 WHERE ad_id=$id');
+    if (updateClick.affectedRows == 0) {
+      return new Response.error(HttpStatus.BAD_REQUEST, new AdException(AdErrors.adNotFound));
+    }
     var url = await db.query('SELECT url FROM adinfo WHERE ad_id=$id');
-    await url.forEach((row) {
-      req.response.redirect(row.url);
-    });
+    var rows = await url.toList();
+    if (rows.isEmpty) {
+      return new Response.error(HttpStatus.BAD_REQUEST, new AdException(AdErrors.adNotFound));
+    } else {
+      Response res = new Response();
+      res.headers[HttpHeaders.LOCATION]= rows[0].url;
+      res.statusCode = HttpStatus.MOVED_TEMPORARILY;
+      return res;
+    }
   }
 }
