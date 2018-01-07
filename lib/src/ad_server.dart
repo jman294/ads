@@ -20,13 +20,10 @@ class AdServer {
       max: 5);
   AdApi _adApi;
 
-  // ConnectionPool get db => _db;
-
   AdServer() {
     Logger.root..level = Level.INFO
                ..onRecord.listen(print);
     _adApi = new AdApi(_db);
-
   }
 
   Future handle(HttpRequest req) async {
@@ -41,11 +38,11 @@ class AdServer {
     if (_isValidUri(uriParts)) {
       Id id = new Id(int.parse(uriParts[1]));
       if (uriParts[0] == 'image') {
-        adResp = await _adApi.image(this, id);
+        adResp = await _adApi.image(id);
       } else if (uriParts[0] == 'text') {
-        adResp = await _adApi.text(this, id);
+        adResp = await _adApi.text(id);
       } else if (uriParts[0] == 'click') {
-        adResp = await _adApi.click(this, id);
+        adResp = await _adApi.click(id);
       }
     } else {
       adResp.statusCode = HttpStatus.NOT_FOUND;

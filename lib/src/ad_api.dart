@@ -14,7 +14,7 @@ class AdApi {
   ConnectionPool _db;
   AdApi(this._db);
 
-  Future<Response> image(AdServer ser, Id id) async {
+  Future<Response> image(Id id) async {
     var results = await _db.query('SELECT imgurl FROM adinfo WHERE ad_id=$id');
     List<int> imageData;
     if (await results.isEmpty) {
@@ -34,19 +34,20 @@ class AdApi {
     }
   }
 
-  Future<Response> text(AdServer ser, Id id) async {
+  Future<Response> text(Id id) async {
     var results = await _db.query('SELECT tag FROM adinfo WHERE ad_id=$id');
     var rows = await results.toList();
     if (rows.isEmpty) {
       return new Response.error(HttpStatus.NOT_FOUND, new AdException(AdErrors.adNotFound));
     } else {
       Response res = new Response();
-      res.write(rows[0].tag);
+      res.headers[HttpHeaders.CONTENT_TYPE] = 'text/plain';
+      res.write(rows[0]);
       return res;
     }
   }
 
-  Future<Response> click(AdServer ser, Id id) async {
+  Future<Response> click(Id id) async {
     var updateClick = await _db.query(
         'UPDATE adclicks SET totalclicks=IFNULL(totalclicks, 0) + 1 WHERE ad_id=$id');
     if (updateClick.affectedRows == 0) {
@@ -58,7 +59,7 @@ class AdApi {
       return new Response.error(HttpStatus.NOT_FOUND, new AdException(AdErrors.adNotFound));
     } else {
       Response res = new Response();
-      res.headers[HttpHeaders.LOCATION]= rows[0].url;
+      res.headers[HttpHeaders.LOCATION]= rows[0];
       res.statusCode = HttpStatus.MOVED_TEMPORARILY;
       return res;
     }
