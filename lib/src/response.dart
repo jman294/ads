@@ -13,7 +13,6 @@ class Response {
   AdException _e;
   final Utf8Encoder encoder = new Utf8Encoder();
 
-
   Map<String, String> get headers => _headers;
   int get statusCode => _statusCode;
   List<int> get data => _data;

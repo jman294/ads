@@ -6,6 +6,6 @@ import 'package:ads/src/ad_server.dart';
 
 Future main() async {
   AdServer adServer = new AdServer();
-  var server = await HttpServer.bind('127.0.0.1', 80);
+  var server = await HttpServer.bind('dup.ly', 80);
   server.listen(await adServer.handle);
 }

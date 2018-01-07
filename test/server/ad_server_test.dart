@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'dart:async';
 
 import 'package:test/test.dart';
 import 'package:mockito/mockito.dart';
@@ -15,16 +14,11 @@ class MockRequest extends Mock implements HttpRequest {
 }
 
 void main() {
-  MockServer server;
-  MockRequest request = new MockRequest();
-
   setUp(() {
-    server = new MockServer();
   });
 
   group('AdServer', () {
     test('.handle() should return', () async {
-      await server.handle(server);
     });
   });
 }

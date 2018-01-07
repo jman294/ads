@@ -42,7 +42,7 @@ class AdApi {
     } else {
       Response res = new Response();
       res.headers[HttpHeaders.CONTENT_TYPE] = 'text/plain';
-      res.write(rows[0]);
+      res.write(rows[0][0]);
       return res;
     }
   }
@@ -59,7 +59,7 @@ class AdApi {
       return new Response.error(HttpStatus.NOT_FOUND, new AdException(AdErrors.adNotFound));
     } else {
       Response res = new Response();
-      res.headers[HttpHeaders.LOCATION]= rows[0];
+      res.headers[HttpHeaders.LOCATION]= rows[0][0];
       res.statusCode = HttpStatus.MOVED_TEMPORARILY;
       return res;
     }
