@@ -27,23 +27,19 @@ class AdServer {
   }
 
   Future handle(HttpRequest req) async {
-    req.response.headers.add('Access-Control-Allow-Origin', '*');
-    req.response.headers.add('Access-Control-Allow-Methods', 'GET');
-    req.response.headers.add('Access-Control-Allow-Headers',
-      'Origin, X-Requested-With, Content-Type, Accept');
+    _addCorsHeaders(req);
 
     List<String> uriParts = req.uri.pathSegments;
+    Map<String, Function> apiMap = {
+      'image': _adApi.image,
+      'text': _adApi.text,
+      'click': _adApi.click
+    };
 
     Response adResp = new Response();
     if (_isValidUri(uriParts)) {
       Id id = new Id(int.parse(uriParts[1]));
-      if (uriParts[0] == 'image') {
-        adResp = await _adApi.image(id);
-      } else if (uriParts[0] == 'text') {
-        adResp = await _adApi.text(id);
-      } else if (uriParts[0] == 'click') {
-        adResp = await _adApi.click(id);
-      }
+      adResp = await apiMap[uriParts[0]](id);
     } else {
       adResp.statusCode = HttpStatus.NOT_FOUND;
       _log.warning('invalid uri');
@@ -52,8 +48,13 @@ class AdServer {
       _log.warning(adResp.e.cause, adResp.e);
     }
     _sendApiResponse(adResp, req.response);
+  }
 
-    // req.response.?close();
+  _addCorsHeaders(HttpRequest req) {
+    req.response.headers.add('Access-Control-Allow-Origin', '*');
+    req.response.headers.add('Access-Control-Allow-Methods', 'GET');
+    req.response.headers.add('Access-Control-Allow-Headers',
+      'Origin, X-Requested-With, Content-Type, Accept');
   }
 
   bool _isValidUri(List<String> uriParts) {
