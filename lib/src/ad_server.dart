@@ -12,11 +12,11 @@ import 'package:ads/src/response.dart';
 class AdServer {
   final Logger _log = new Logger('AdServer');
   final ConnectionPool _db = new ConnectionPool(
-      host: 'localhost',
+      host: 'db4free.net',
       port: 3306,
-      user: 'mysql',
-      password: 'password',
-      db: 'ads',
+      user: 'adsmysql',
+      password: 'jman294',
+      db: 'adsdb',
       max: 5);
   AdApi _adApi;
 
