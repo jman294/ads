@@ -1,0 +1,32 @@
+<html>
+  <head>
+  </head>
+  <body>
+    <a href="http://dup.ly/click/2" target="_blank">
+    <img style="cursor: pointer;" src="http://dup.ly/image/2" height="64px" width="64px"/>
+    <p id="tagline"></p>
+    </a>
+    <script>
+      var p=document.getElementById('tagline');
+      var req2=new XMLHttpRequest();
+      req2.open('GET', 'http://dup.ly/text/2');
+      req2.onload = function() {
+        p.innerHTML = req2.response;
+      };
+      req2.send();
+    </script>
+    <a href="http://dup.ly/click/1" target="_blank">
+    <img style="cursor: pointer;" src="http://dup.ly/image/1" height="64px" width="64px"/>
+    <p id="tagline2"></p>
+    </a>
+    <script>
+      var p2=document.getElementById('tagline2');
+      var req=new XMLHttpRequest();
+      req.open('GET', 'http://dup.ly/text/1');
+      req.onload = function() {
+        p2.innerHTML = req.response;
+      };
+      req.send();
+    </script>
+  </body>
+</html>
