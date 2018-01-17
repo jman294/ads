@@ -24,8 +24,15 @@ class AdServer {
   }
 
   Future auth() async {
-    final String privateKey =
-        await new File('/home/jack/APLACE/privateKey.json').readAsString();
+    final Map<String, String> envVars = Platform.environment;
+    String privateKey;
+
+    if (envVars['WEBSITE'] != null) {
+      privateKey = (await http.get(envVars['WEBSITE'])).body;
+    } else {
+      throw new Exception('Could not Authenticate');
+    }
+
     final String json = new JsonDecoder().convert(privateKey);
     final ServiceAccountCredentials accountCredentials =
         new ServiceAccountCredentials.fromJson(json);
