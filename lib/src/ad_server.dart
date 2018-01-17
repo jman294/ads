@@ -2,8 +2,11 @@ library ads.server;
 
 import 'dart:io';
 import 'dart:async';
+import 'dart:convert';
 
-import 'package:sqljocky/sqljocky.dart';
+import 'package:http/http.dart' as http;
+import 'package:googleapis_auth/auth_io.dart';
+import 'package:firebase/firebase_io.dart';
 import 'package:logging/logging.dart';
 import 'package:ads/src/ad_api.dart';
 import 'package:ads/src/id.dart';
@@ -11,19 +14,32 @@ import 'package:ads/src/response.dart';
 
 class AdServer {
   final Logger _log = new Logger('AdServer');
-  final ConnectionPool _db = new ConnectionPool(
-      host: 'db4free.net',
-      port: 3306,
-      user: 'adsmysql',
-      password: 'jman294',
-      db: 'adsdb',
-      max: 5);
   AdApi _adApi;
+  FirebaseClient _fbClient;
 
   AdServer() {
-    Logger.root..level = Level.INFO
-               ..onRecord.listen(print);
-    _adApi = new AdApi(_db);
+    Logger.root
+      ..level = Level.INFO
+      ..onRecord.listen(print);
+  }
+
+  Future auth() async {
+    final String privateKey =
+        await new File('/home/jack/APLACE/privateKey.json').readAsString();
+    final String json = new JsonDecoder().convert(privateKey);
+    final ServiceAccountCredentials accountCredentials =
+        new ServiceAccountCredentials.fromJson(json);
+    final List<String> scopes = [
+      'https://www.googleapis.com/auth/firebase.database',
+      'https://www.googleapis.com/auth/userinfo.email'
+    ];
+    final http.Client client = new http.Client();
+    final AccessCredentials credentials =
+        await obtainAccessCredentialsViaServiceAccount(
+            accountCredentials, scopes, client);
+    _fbClient = new FirebaseClient(credentials.accessToken.data);
+    _adApi = new AdApi(_fbClient, 'https://adserver-fc752.firebaseio.com/');
+    client.close();
   }
 
   Future handle(HttpRequest req) async {
@@ -54,7 +70,7 @@ class AdServer {
     req.response.headers.add('Access-Control-Allow-Origin', '*');
     req.response.headers.add('Access-Control-Allow-Methods', 'GET');
     req.response.headers.add('Access-Control-Allow-Headers',
-      'Origin, X-Requested-With, Content-Type, Accept');
+        'Origin, X-Requested-With, Content-Type, Accept');
   }
 
   bool _isValidUri(List<String> uriParts) {
@@ -78,7 +94,7 @@ class AdServer {
     response.statusCode = apiResponse.statusCode;
     response.reasonPhrase = apiResponse.reasonPhrase;
     apiResponse.headers
-      .forEach((name, value) => response.headers.add(name, value));
+        .forEach((name, value) => response.headers.add(name, value));
     if (apiResponse.data != null) {
       response.add(apiResponse.data);
     }
