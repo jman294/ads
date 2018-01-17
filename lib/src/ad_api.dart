@@ -18,7 +18,7 @@ class AdApi {
     final String results =
         await _db.get('$_host/$id/imgurl.json');
     List<int> imageData;
-    if (await results.isEmpty) {
+    if (results == null) {
       return new Response.error(
           HttpStatus.NOT_FOUND, new AdException(AdErrors.adNotFound));
     } else {
@@ -40,7 +40,7 @@ class AdApi {
   Future<Response> text(Id id) async {
     final String result =
         await _db.get('$_host/$id/tag.json');
-    if (result == '') {
+    if (result == null) {
       return new Response.error(
           HttpStatus.NOT_FOUND, new AdException(AdErrors.adNotFound));
     } else {
@@ -62,7 +62,7 @@ class AdApi {
         {'clicks': clicks + 1});
     final String url =
         await _db.get('$_host/$id/url.json');
-    if (url == '') {
+    if (url == null) {
       return new Response.error(
           HttpStatus.NOT_FOUND, new AdException(AdErrors.adNotFound));
     } else {
