@@ -70,9 +70,8 @@ void main() {
     });
 
     test('.click() should have correct response for good id', () async {
-      // MockResults.list is a list of strings here, but in reality it is a type defined is sqljocky. That's why this test is weird
-      // FIXME
       expect((await adApi.click(new Id(1))).headers['location'], equals('farts'));
+      print((new Id(1)).statusCode is String);
       expect((await adApi.click(new Id(1))).statusCode, equals(302));
     });
     test('.click() should have error response for bad id', () async {
